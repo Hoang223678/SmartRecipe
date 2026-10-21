@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test -- --passWithNoTests
+      - run: npx nest build api-gateway
+      - run: npx nest build auth-service
+
+  docker:
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        app:
+          - api-gateway
+          - auth-service
+          - catalog-service
+          - recipe-service
+          - recommendation-service
+          - interaction-service
+          - planner-service
+          - media-service
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: |
+          docker build \
+            -f infra/docker/app.Dockerfile \
+            --build-arg APP=${{ matrix.app }} \
+            -t smart-recipe-${{ matrix.app }}:${{ github.sha }} \
+            .
+      - name: Push image
+        if: github.event_name == 'push'
+        run: |
+          echo "Configure registry secrets to enable push for smart-recipe-${{ matrix.app }}:${{ github.sha }}"

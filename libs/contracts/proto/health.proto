@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package health;
+
+service HealthService {
+  rpc Check (Empty) returns (HealthReply);
+}
+
+message Empty {}
+
+message HealthReply {
+  string status = 1;
+  string service = 2;
+}
