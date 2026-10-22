@@ -1,0 +1,13 @@
+node_modules
+dist
+coverage
+.git
+.gitignore
+*.md
+.temp
+.tmp
+.idea
+.vscode
+*.tsbuildinfo
+infra/k8s
+.github

@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+package auth;
+
+service AuthService {
+  rpc Register (RegisterRequest) returns (AuthResponse);
+  rpc Login (LoginRequest) returns (AuthResponse);
+  rpc Refresh (RefreshRequest) returns (AuthResponse);
+  rpc Logout (LogoutRequest) returns (Empty);
+  rpc GetMe (GetMeRequest) returns (UserProfile);
+  rpc UpdateUserRole (UpdateUserRoleRequest) returns (UserProfile);
+}
+
+message Empty {}
+
+message RegisterRequest {
+  string email = 1;
+  string password = 2;
+  string display_name = 3;
+}
+
+message LoginRequest {
+  string email = 1;
+  string password = 2;
+  string user_agent = 3;
+  string ip_address = 4;
+}
+
+message RefreshRequest {
+  string refresh_token = 1;
+}
+
+message LogoutRequest {
+  string refresh_token = 1;
+}
+
+message GetMeRequest {
+  string user_id = 1;
+}
+
+message UpdateUserRoleRequest {
+  string user_id = 1;
+  string role = 2;
+  string actor_id = 3;
+}
+
+message AuthResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+  UserProfile user = 3;
+}
+
+message UserProfile {
+  string id = 1;
+  string email = 2;
+  string display_name = 3;
+  string avatar_url = 4;
+  string role = 5;
+  string status = 6;
+}

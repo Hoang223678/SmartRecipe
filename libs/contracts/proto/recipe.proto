@@ -1,0 +1,106 @@
+syntax = "proto3";
+
+package recipe;
+
+service RecipeService {
+  rpc SearchRecipes (SearchRecipesRequest) returns (SearchRecipesReply);
+  rpc GetRecipe (GetRecipeRequest) returns (RecipeDetail);
+  rpc SearchIngredients (SearchIngredientsRequest) returns (IngredientList);
+  rpc ListTags (Empty) returns (TagList);
+}
+
+message Empty {}
+
+message SearchRecipesRequest {
+  int32 page = 1;
+  int32 limit = 2;
+  string q = 3;
+  repeated string tag_ids = 4;
+  int32 max_cook_time = 5;
+  string difficulty = 6;
+  string sort_by = 7;
+}
+
+message SearchRecipesReply {
+  repeated RecipeSummary items = 1;
+  int32 page = 2;
+  int32 limit = 3;
+  int32 total = 4;
+}
+
+message GetRecipeRequest {
+  string id = 1;
+  string user_id = 2;
+}
+
+message Author {
+  string id = 1;
+  string display_name = 2;
+}
+
+message RecipeSummary {
+  string id = 1;
+  string title = 2;
+  string thumbnail_url = 3;
+  int32 cook_time_minutes = 4;
+  string difficulty = 5;
+  double avg_rating = 6;
+  int32 rating_count = 7;
+  Author author = 8;
+}
+
+message RecipeIngredient {
+  string ingredient_id = 1;
+  string name = 2;
+  double quantity = 3;
+  string unit = 4;
+  bool optional = 5;
+}
+
+message RecipeStep {
+  int32 order = 1;
+  string content = 2;
+  string image_url = 3;
+}
+
+message RecipeTag {
+  string id = 1;
+  string name = 2;
+}
+
+message RecipeDetail {
+  string id = 1;
+  string title = 2;
+  string thumbnail_url = 3;
+  int32 cook_time_minutes = 4;
+  string difficulty = 5;
+  double avg_rating = 6;
+  int32 rating_count = 7;
+  Author author = 8;
+  string description = 9;
+  int32 servings = 10;
+  int32 calories = 11;
+  repeated RecipeIngredient ingredients = 12;
+  repeated RecipeStep steps = 13;
+  repeated RecipeTag tags = 14;
+  bool is_favorited = 15;
+  bool has_favorite = 16;
+  string created_at = 17;
+}
+
+message SearchIngredientsRequest {
+  string q = 1;
+}
+
+message IngredientOption {
+  string id = 1;
+  string name = 2;
+}
+
+message IngredientList {
+  repeated IngredientOption items = 1;
+}
+
+message TagList {
+  repeated RecipeTag items = 1;
+}
