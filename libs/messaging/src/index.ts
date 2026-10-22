@@ -43,6 +43,18 @@ export class EventPublisher {
     this.emit(EVENTS.RATING_CHANGED, payload);
   }
 
+  favoriteChanged(payload: {
+    recipeId: string;
+    favoriteCount: number;
+    favorited: boolean;
+  }): void {
+    this.emit(EVENTS.FAVORITE_CHANGED, payload);
+  }
+
+  commentCreated(payload: { recipeId: string; commentId: string }): void {
+    this.emit(EVENTS.COMMENT_CREATED, payload);
+  }
+
   userDietUpdated(payload: { userId: string }): void {
     this.emit(EVENTS.USER_DIET_UPDATED, payload);
   }

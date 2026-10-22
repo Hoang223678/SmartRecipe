@@ -23,9 +23,11 @@ import { User } from './entities/user.entity';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { AuditLog } from './entities/audit-log.entity';
 import { OutboxEvent } from './entities/outbox-event.entity';
+import { SEED_USER_PASSWORD, seedUsers } from './auth.seed';
+import type { IAuthService } from './interface/auth.service.interface';
 
 @Injectable()
-export class AuthService implements OnModuleInit {
+export class AuthService implements OnModuleInit, IAuthService {
   constructor(
     @InjectRepository(User) private readonly users: Repository<User>,
     @InjectRepository(RefreshToken)
@@ -39,19 +41,25 @@ export class AuthService implements OnModuleInit {
 
   async onModuleInit(): Promise<void> {
     const env = loadEnv();
-    const exists = await this.users.findOne({ where: { email: env.ADMIN_EMAIL } });
-    if (exists) {
+    const seeds = seedUsers(env.ADMIN_EMAIL);
+    const existing = await this.users.find({
+      where: seeds.map((u) => ({ email: u.email })),
+    });
+    const have = new Set(existing.map((u) => u.email));
+    const missing = seeds.filter((u) => !have.has(u.email));
+    if (!missing.length) {
       return;
     }
-    const passwordHash = await bcrypt.hash(env.ADMIN_PASSWORD, 10);
+    const adminHash = await bcrypt.hash(env.ADMIN_PASSWORD, 10);
+    const userHash = await bcrypt.hash(SEED_USER_PASSWORD, 10);
     await this.users.save(
-      this.users.create({
-        email: env.ADMIN_EMAIL,
-        passwordHash,
-        displayName: 'System Admin',
-        role: Role.ADMIN,
-        status: UserStatus.ACTIVE,
-      }),
+      missing.map((u) =>
+        this.users.create({
+          ...u,
+          passwordHash:
+            u.role === Role.ADMIN ? adminHash : userHash,
+        }),
+      ),
     );
   }
 

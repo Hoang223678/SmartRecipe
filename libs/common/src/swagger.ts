@@ -29,7 +29,8 @@ export function setupSwagger(
   const instance = app.getHttpAdapter().getInstance() as {
     get?: (path: string, handler: (...args: unknown[]) => void) => void;
   };
-  instance.get?.('/', (_req: unknown, res: { redirect: (code: number, url: string) => void }) => {
+  instance.get?.('/', (...args: unknown[]) => {
+    const res = args[1] as { redirect: (code: number, url: string) => void };
     res.redirect(302, `/${path}`);
   });
 }

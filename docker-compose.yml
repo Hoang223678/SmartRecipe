@@ -1,2 +1,5 @@
+name: smart-recipe-api
+
 include:
   - infra/docker-compose.yml
+

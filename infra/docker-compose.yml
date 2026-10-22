@@ -1,4 +1,4 @@
-name: smart-recipe
+name: smart-recipe-api
 
 x-node: &node
   restart: unless-stopped
@@ -12,7 +12,6 @@ services:
       context: ..
       dockerfile: infra/docker/postgres/Dockerfile
     image: smart-recipe-postgres:16
-    container_name: smart-recipe-postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
@@ -30,7 +29,6 @@ services:
   redis:
     <<: *node
     image: redis:7-alpine
-    container_name: smart-recipe-redis
     command: ['redis-server', '--appendonly', 'yes']
     ports:
       - '${REDIS_HOST_PORT:-6380}:6379'
@@ -45,7 +43,6 @@ services:
   rabbitmq:
     <<: *node
     image: rabbitmq:3.13-management-alpine
-    container_name: smart-recipe-rabbitmq
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
@@ -68,7 +65,6 @@ services:
       args:
         APP: auth-service
     image: smart-recipe-auth-service
-    container_name: smart-recipe-auth
     depends_on:
       postgres:
         condition: service_healthy
@@ -105,7 +101,6 @@ services:
       args:
         APP: catalog-service
     image: smart-recipe-catalog-service
-    container_name: smart-recipe-catalog
     environment:
       PORT: 3002
       GRPC_PORT: 50052
@@ -123,7 +118,6 @@ services:
       args:
         APP: recipe-service
     image: smart-recipe-recipe-service
-    container_name: smart-recipe-recipe
     depends_on:
       postgres:
         condition: service_healthy
@@ -147,7 +141,6 @@ services:
       args:
         APP: recommendation-service
     image: smart-recipe-recommendation-service
-    container_name: smart-recipe-recommendation
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -168,12 +161,16 @@ services:
       args:
         APP: interaction-service
     image: smart-recipe-interaction-service
-    container_name: smart-recipe-interaction
+    depends_on:
+      postgres:
+        condition: service_healthy
     environment:
       PORT: 3005
       GRPC_PORT: 50055
       SERVICE_NAME: interaction-service
+      JWT_SECRET: ${JWT_SECRET:-change-me-please-use-long-secret}
       SWAGGER_PUBLIC_URL: http://localhost:3005
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/interaction_db
       RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
     ports:
       - '3005:3005'
@@ -186,12 +183,17 @@ services:
       args:
         APP: planner-service
     image: smart-recipe-planner-service
-    container_name: smart-recipe-planner
+    depends_on:
+      postgres:
+        condition: service_healthy
     environment:
       PORT: 3006
       GRPC_PORT: 50056
       SERVICE_NAME: planner-service
+      JWT_SECRET: ${JWT_SECRET:-change-me-please-use-long-secret}
       SWAGGER_PUBLIC_URL: http://localhost:3006
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/planner_db
+      RECIPE_GRPC_URL: recipe-service:50053
       RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
     ports:
       - '3006:3006'
@@ -204,7 +206,6 @@ services:
       args:
         APP: media-service
     image: smart-recipe-media-service
-    container_name: smart-recipe-media
     environment:
       PORT: 3007
       GRPC_PORT: 50057
@@ -222,7 +223,6 @@ services:
       args:
         APP: api-gateway
     image: smart-recipe-api-gateway
-    container_name: smart-recipe-api-gateway
     depends_on:
       auth-service:
         condition: service_healthy
@@ -253,4 +253,4 @@ volumes:
 
 networks:
   smart-recipe:
-    name: smart-recipe-net
+    name: smart-recipe-api-net

@@ -2,15 +2,15 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthLibModule } from '@app/auth-lib';
 import { loadEnv } from '@app/config';
-import { HealthController } from './health.controller';
-import { HealthGrpcController } from './health.grpc.controller';
+import { HealthController } from './api/health.controller';
+import { HealthGrpcController } from './api/health.grpc.controller';
 import { Recipe } from './entities/recipe.entity';
 import { RecipeIngredient } from './entities/recipe-ingredient.entity';
 import { RecipeStep } from './entities/recipe-step.entity';
 import { RecipeTag } from './entities/recipe-tag.entity';
 import { RecipeService } from './recipe.service';
-import { RecipeHttpController } from './recipe.http.controller';
-import { RecipeGrpcController } from './recipe.grpc.controller';
+import { RecipeHttpController } from './api/recipe.http.controller';
+import { RecipeGrpcController } from './api/recipe.grpc.controller';
 
 @Module({
   imports: [

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IsNull, Repository } from 'typeorm';
+import { In, IsNull, Repository } from 'typeorm';
 import {
   IngredientOptionDto,
   RecipeDetailDto,
@@ -15,9 +15,10 @@ import { RecipeIngredient } from './entities/recipe-ingredient.entity';
 import { RecipeTag } from './entities/recipe-tag.entity';
 import { toDetail, toSummary } from './recipe.mapper';
 import { seedApprovedRecipes } from './recipe.seed';
+import type { IRecipeService } from './interface/recipe.service.interface';
 
 @Injectable()
-export class RecipeService implements OnModuleInit {
+export class RecipeService implements OnModuleInit, IRecipeService {
   constructor(
     @InjectRepository(Recipe) private readonly recipes: Repository<Recipe>,
     @InjectRepository(RecipeIngredient)
@@ -26,11 +27,18 @@ export class RecipeService implements OnModuleInit {
   ) {}
 
   async onModuleInit(): Promise<void> {
-    const count = await this.recipes.count();
-    if (count > 0) {
+    const seeds = seedApprovedRecipes();
+    const ids = seeds.map((r) => r.id).filter((id): id is string => !!id);
+    const existing = await this.recipes.find({
+      where: { id: In(ids) },
+      select: ['id'],
+    });
+    const have = new Set(existing.map((r) => r.id));
+    const missing = seeds.filter((r) => r.id && !have.has(r.id));
+    if (!missing.length) {
       return;
     }
-    await this.recipes.save(this.recipes.create(seedApprovedRecipes()));
+    await this.recipes.save(this.recipes.create(missing));
   }
 
   async search(query: SearchRecipesQueryDto): Promise<RecipePageDto> {
