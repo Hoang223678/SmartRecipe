@@ -14,23 +14,22 @@
     "types": ["node", "jest"],
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
     "strict": true,
     "strictPropertyInitialization": false,
     "ignoreDeprecations": "6.0",
     "paths": {
-      "@app/contracts": ["libs/contracts/src"],
-      "@app/contracts/*": ["libs/contracts/src/*"],
-      "@app/common": ["libs/common/src"],
-      "@app/common/*": ["libs/common/src/*"],
-      "@app/auth-lib": ["libs/auth-lib/src"],
-      "@app/auth-lib/*": ["libs/auth-lib/src/*"],
-      "@app/messaging": ["libs/messaging/src"],
-      "@app/messaging/*": ["libs/messaging/src/*"],
-      "@app/config": ["libs/config/src"],
-      "@app/config/*": ["libs/config/src/*"]
+      "@app/contracts": ["./libs/contracts/src"],
+      "@app/contracts/*": ["./libs/contracts/src/*"],
+      "@app/common": ["./libs/common/src"],
+      "@app/common/*": ["./libs/common/src/*"],
+      "@app/auth-lib": ["./libs/auth-lib/src"],
+      "@app/auth-lib/*": ["./libs/auth-lib/src/*"],
+      "@app/messaging": ["./libs/messaging/src"],
+      "@app/messaging/*": ["./libs/messaging/src/*"],
+      "@app/config": ["./libs/config/src"],
+      "@app/config/*": ["./libs/config/src/*"]
     }
   }
 }
